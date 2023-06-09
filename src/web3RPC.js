@@ -1,4 +1,6 @@
 import Web3 from 'web3';
+// import { Transaction } from 'ethereumjs-tx/dist/transaction';
+const EthereumTx = require('ethereumjs-tx').Transaction;
 
 export default class RPC {
   constructor(provider) {
@@ -48,33 +50,210 @@ export default class RPC {
     }
   }
 
+  // sendTransaction: eth_sendTransaction;
   async sendTransaction() {
     try {
-      const web3 = new Web3(this.provider);
+      const web3 = new Web3(
+        'http://aa91be3b402064d0a948625ee5688e96-1594862739.ap-northeast-1.elb.amazonaws.com/rpc'
+      );
+      // const privateKeyA =
+      //   '0x12dc58ffa9dc71c09b090dc74309dd8415e9358df2c7eccdf201c94e8fec087f';
+      // const accountA = web3.eth.accounts.privateKeyToAccount(privateKeyA);
+      // console.log('privateKeyToAccount : ', accountA.address);
 
       // Get user's Ethereum public address
       const fromAddress = (await web3.eth.getAccounts())[0];
+      console.log('fromAddress : ', fromAddress);
 
-      const destination = fromAddress;
+      // const destination = fromAddress;
+      const accountB = web3.eth.accounts.create();
+      console.log('createAddress : ', accountB.address);
 
       //   const amount = web3.utils.toWei('0.001'); // Convert 1 ether to wei
       const amount = web3.utils.toWei('0.00'); // Convert 1 ether to wei
+      console.log('amount : ', amount);
 
       // Submit transaction to the blockchain and wait for it to be mined
-      const receipt = await web3.eth.sendTransaction({
+      // const receipt = await web3.eth.sendTransaction({
+      //   from: fromAddress,
+      //   to: accountB.address,
+      //   value: amount,
+      //   // maxPriorityFeePerGas: '5000000000', // Max priority fee per gas
+      //   gasPrice: '0x0',
+      //   // maxFeePerGas: '6000000000000', // Max fee per gas
+      //   gasLimit: '0x24A22',
+      // });
+      // console.log('tx receipt: ', receipt);
+
+      const txOptions = {
         from: fromAddress,
-        to: destination,
-        value: amount,
-        maxPriorityFeePerGas: '5000000000', // Max priority fee per gas
-        maxFeePerGas: '6000000000000', // Max fee per gas
-      });
-      console.log('tx receipt: ', receipt);
+        to: accountB.address,
+        value: '0x0', // Amount of ETH to transfer
+        gasPrice: '0x0', // Set to 0 in GoQuorum networks
+        gasLimit: '0x24A22', // Max number of gas units the tx is allowed to use
+      };
+
+      console.log('Creating transaction...');
+      const pTx = await web3.eth.sendTransaction(txOptions);
+      console.log('pTx : ', pTx);
+      const receipt = pTx.transactionHash;
+      console.log('pTx.transactionHash : ', pTx.transactionHash);
+
+      // web3.eth.sendTransaction(txOptions).then((pTx) => {
+      //   console.log('tx transactionHash: ' + pTx.transactionHash);
+      // });
 
       return receipt;
     } catch (error) {
+      console.error(error);
       return error;
     }
   }
+
+  // sendTransaction: eth_sendTransaction;
+  // async sendTransaction() {
+  //   try {
+  //     const web3 = new Web3(
+  //       'http://aa91be3b402064d0a948625ee5688e96-1594862739.ap-northeast-1.elb.amazonaws.com/rpc'
+  //     );
+  //     // const Tx = EhtTx.Transaction;
+
+  //     const privateKeyA =
+  //       '0x12dc58ffa9dc71c09b090dc74309dd8415e9358df2c7eccdf201c94e8fec087f';
+  //     const accountA = web3.eth.accounts.privateKeyToAccount(privateKeyA);
+  //     console.log('accountA : ', accountA);
+
+  //     // const destination = fromAddress;
+  //     const accountB = web3.eth.accounts.create();
+  //     console.log('createAddress : ', accountB.address);
+
+  //     //   const amount = web3.utils.toWei('0.001'); // Convert 1 ether to wei
+  //     // const amount = web3.utils.toWei('0.00'); // Convert 1 ether to wei
+  //     // console.log('amount : ', amount);
+
+  //     const rawTxOptions = {
+  //       nonce: web3.utils.numberToHex(
+  //         await web3.eth.getTransactionCount(accountA.address)
+  //       ),
+  //       from: accountA.address,
+  //       to: accountB.address,
+  //       value: '0x0', // Amount of ETH to transfer
+  //       gasPrice: '0x0', // Set to 0 in GoQuorum networks
+  //       gasLimit: '0x47b760', // Max number of gas units the tx is allowed to use
+  //     };
+
+  //     console.log('Creating transaction...');
+  //     const tx = new EthereumTx(rawTxOptions);
+  //     console.log('Signing transaction...');
+  //     tx.sign(Buffer.from(accountA.privateKey.substring(2), 'hex'));
+  //     console.log('Sending transaction...');
+  //     const serializedTx = tx.serialize();
+  //     console.log('serializedTx : ', serializedTx.toString('hex'));
+
+  //     // web3.eth
+  //     //   .sendSignedTransaction('0x' + serializedTx.toString('hex'))
+  //     //   .then((pTx) => {
+  //     //     txHash = pTx.transactionHash;
+  //     //     console.log('tx transactionHash: ' + pTx.transactionHash);
+  //     //   });
+  //     const pTx = await web3.eth.sendSignedTransaction(
+  //       '0x' + serializedTx.toString('hex')
+  //     );
+  //     console.log('pTx: ', pTx);
+  //     console.log('tx transactionHash: ' + pTx.transactionHash);
+  //     const receipt = pTx.transactionHash;
+
+  //     return receipt;
+  //   } catch (error) {
+  //     console.error(error);
+  //     return error;
+  //   }
+  // }
+
+  async sendNFT() {
+    try {
+      const web3 = new Web3(
+        'http://aa91be3b402064d0a948625ee5688e96-1594862739.ap-northeast-1.elb.amazonaws.com/rpc'
+      );
+
+      const privateKey =
+        '0x12dc58ffa9dc71c09b090dc74309dd8415e9358df2c7eccdf201c94e8fec087f';
+
+      // プライベートキーからアカウントを作成
+      const account = web3.eth.accounts.privateKeyToAccount(privateKey);
+      web3.eth.accounts.wallet.add(account);
+      web3.eth.defaultAccount = account.address;
+
+      console.log('fromAddress : ', account.address);
+
+      // 送信先アドレスを作成;
+      const accountB = web3.eth.accounts.create();
+      console.log('createAddress : ', accountB.address);
+
+      // 送信したいNFTのtoken ID
+      const tokenId = 2;
+
+      // NFTを送信するのにはコントラクトアドレスとコントラクトABIが必要
+      const contractAddress = '0xC52924A000800A82Cb7068e27495cE0983330a98';
+      const contractABI = require('./MyToken.json').abi;
+
+      const contract = new web3.eth.Contract(contractABI, contractAddress);
+
+      // Setup transaction options
+      const txOptions = {
+        from: account.address,
+        to: accountB.address,
+        gasPrice: '0x0', // Set to 0 in GoQuorum networks
+        gasLimit: '0x24A22', // Max number of gas units the tx is allowed to use
+      };
+
+      // Transfer token
+      let transfer;
+      try {
+        transfer = await contract.methods
+          .transferFrom(account.address, accountB.address, tokenId)
+          .send(txOptions);
+        console.log(
+          `Transferred token with id ${tokenId} to ${accountB.address}`
+        );
+        console.log('transfer : ', transfer);
+      } catch (error) {
+        console.error(`Failed to transfer token: ${error}`);
+      }
+
+      // Check balances
+      try {
+        const senderTokenCount = await contract.methods
+          .balanceOf(account.address)
+          .call();
+        console.log(
+          `Token count of sender (${account.address}) is ${senderTokenCount}`
+        );
+
+        const recipientTokenCount = await contract.methods
+          .balanceOf(accountB.address)
+          .call();
+        console.log(
+          `Token count of recipient (${accountB.address}) is ${recipientTokenCount}`
+        );
+      } catch (error) {
+        console.error(`Failed to check balances: ${error}`);
+      }
+
+      // Check token's owner
+      try {
+        const owner = await contract.methods.ownerOf(tokenId).call();
+        console.log(`Owner of token with id ${tokenId} is ${owner}`);
+      } catch (error) {
+        console.error(`Failed to check owner: ${error}`);
+      }
+      return transfer;
+    } catch (error) {
+      console.error(error);
+      return error;
+    }
+  }
+
   async sendContractTransaction() {
     try {
       let tokenConstant;

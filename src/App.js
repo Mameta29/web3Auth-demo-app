@@ -24,8 +24,11 @@ function App() {
           clientId,
           chainConfig: {
             chainNamespace: CHAIN_NAMESPACES.EIP155,
-            chainId: '0x539',
-            rpcTarget: 'http://localhost:8545',
+            // chainId: '0xA', //mainnet
+            chainId: '0xA',
+            // rpcTarget: 'http://localhost:8545',
+            rpcTarget:
+              'http://aa91be3b402064d0a948625ee5688e96-1594862739.ap-northeast-1.elb.amazonaws.com/rpc',
           },
         });
 
@@ -112,10 +115,43 @@ function App() {
       console.log('provider not initialized yet');
       return;
     }
-    const rpc = new RPC(provider);
-    const receipt = await rpc.sendTransaction();
-    console.log('receipt :', receipt);
+    try {
+      const rpc = new RPC(provider);
+      const receipt = await rpc.sendTransaction();
+      console.log('receipt :', receipt);
+    } catch (error) {
+      console.log('Error sending transaction:', error);
+      // エラーメッセージやエラーコードなど、エラーオブジェクトの詳細を表示する
+      if (error.message) {
+        console.log('Error message:', error.message);
+      }
+      if (error.code) {
+        console.log('Error code:', error.code);
+      }
+    }
   };
+
+  const sendNFT = async () => {
+    if (!provider) {
+      console.log('provider not initialized yet');
+      return;
+    }
+    try {
+      const rpc = new RPC(provider);
+      const receipt = await rpc.sendNFT();
+      console.log('receipt :', receipt);
+    } catch (error) {
+      console.log('Error sending transaction:', error);
+      // エラーメッセージやエラーコードなど、エラーオブジェクトの詳細を表示する
+      if (error.message) {
+        console.log('Error message:', error.message);
+      }
+      if (error.code) {
+        console.log('Error code:', error.code);
+      }
+    }
+  };
+
   const sendContractTransaction = async () => {
     if (!provider) {
       console.log('provider not initialized yet');
@@ -166,6 +202,12 @@ function App() {
         className="card bg-purple-500 border border-purple-500 rounded-lg px-8 py-3 font-bold text-black mt-4 flex items-center justify-center w-full max-w-xs"
       >
         Send Transaction
+      </button>
+      <button
+        onClick={sendNFT}
+        className="card bg-purple-500 border border-purple-500 rounded-lg px-8 py-3 font-bold text-black mt-4 flex items-center justify-center w-full max-w-xs"
+      >
+        Send NFT
       </button>
       <button
         onClick={sendContractTransaction}
